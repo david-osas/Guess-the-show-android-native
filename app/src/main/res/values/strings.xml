@@ -7,4 +7,8 @@
     <string name="seriesHomeText">Play in TV series category</string>
     <string name="animeHomeText">Play in anime category</string>
 
+    <!--    Choices activity-->
+    <string name="choice_1">Guess the names of popular shows on your screens \n 📺</string>
+    <string name="choice_2">Guess the names of your favourite characters \n 🎭</string>
+
 </resources>
