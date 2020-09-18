@@ -20,7 +20,7 @@ public class ChoicesActivity extends AppCompatActivity {
 
     public void showRounds(View view){
         String tag = view.getTag().toString();
-        Intent intent = new Intent(ChoicesActivity.this, RoundsActivity.class);
+        Intent intent = new Intent(ChoicesActivity.this, QuizActivity.class);
         intent.putExtra("category",category);
         intent.putExtra("choice",tag);
         startActivity(intent);
