@@ -25,6 +25,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
             android:text="@string/choice_1"
             android:textColor="#FFFFFF"
             android:textSize="20sp" />
@@ -48,6 +50,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
             android:text="@string/choice_2"
             android:textColor="#FFFFFF"
             android:textSize="20sp" />
