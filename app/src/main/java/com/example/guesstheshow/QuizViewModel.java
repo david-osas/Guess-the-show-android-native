@@ -21,23 +21,42 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 public class QuizViewModel extends ViewModel {
-    public String category = "", tag = "";
+    private String category, tag;
     private int[] tmdbPages = {1,2,3,4,5}, animePages = {1,2};
     private String requestTag = "quiz_data";
-    private String tmdbShowsBaseUrl = "https://api.themoviedb.org/3/%s/popular?api_key=%s&language=en-US&page=%d";
-    private String tmdbCharactersBaseUrl = "https://api.themoviedb.org/3/movie/%d/credits?api_key=%s";
+    private String tmdbShowsBaseUrl = "https://api.themoviedb.org/3/%s/popular?api_key=%s&language=en-US&page=";
+    private String tmdbCharactersBaseUrl = "https://api.themoviedb.org/3/%s/%d/credits?api_key=%s";
     private String animeShowsBaseUrl = "https://api.jikan.moe/v3/top/anime/%d/tv";
     private String animeCharactersBaseUrl = "https://api.jikan.moe/v3/top/characters/%d";
     private RequestQueue requestQueue;
     private ArrayList<String[]> dataPairs = new ArrayList<>();
     private ArrayList<String> dataTitles = new ArrayList<>();
+    public boolean state = false;
 
-    QuizViewModel(Context c){
-        requestQueue = Volley.newRequestQueue(c);
+    public void setContext(Context c){
+        if(requestQueue == null){
+            requestQueue = Volley.newRequestQueue(c);
+        }
+    }
+
+    public void setCategory(String s){
+        category = s;
+    }
+    public void setTag(String s){
+        tag = s;
+    }
+
+    public ArrayList<String[]> getDataPairs() {
+        return dataPairs;
+    }
+
+    public ArrayList<String> getDataTitles(){
+        return dataTitles;
     }
 
 
-    public void startRequest(String category, String tag){
+    public void startRequest(){
+        state = true;
         String url = "";
 
         if(category.equals("anime")){
@@ -63,6 +82,12 @@ public class QuizViewModel extends ViewModel {
 
     }
 
+    public void stopRequests(){
+        if(requestQueue != null){
+            requestQueue.cancelAll(requestTag);
+        }
+    }
+
     private JsonObjectRequest getIdsObjectRequest(String url){
         JsonObjectRequest idsRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
             @Override
@@ -73,7 +98,8 @@ public class QuizViewModel extends ViewModel {
                     while(i < array.length()){
                         JSONObject object = array.getJSONObject(i);
                         int id = object.getInt("id");
-                        String characterUrl = String.format(tmdbCharactersBaseUrl, id, BuildConfig.TMDB_KEY);
+                        String characterUrl = category.equals("movies") ? String.format(tmdbCharactersBaseUrl, "movie", id, BuildConfig.TMDB_KEY)
+                                : String.format(tmdbCharactersBaseUrl, "tv", id, BuildConfig.TMDB_KEY);
                         JsonObjectRequest newObjectRequest = getTMDBCharactersObject(characterUrl);
                         newObjectRequest.setTag(requestTag);
                         requestQueue.add(newObjectRequest);
@@ -105,7 +131,7 @@ public class QuizViewModel extends ViewModel {
                 url = animeCharactersBaseUrl;
             }
         }else{
-            url = String.format(tmdbShowsBaseUrl, category, BuildConfig.TMDB_KEY);
+            url = String.format(tmdbShowsBaseUrl, category, BuildConfig.TMDB_KEY) + "%d";
             
         }
 

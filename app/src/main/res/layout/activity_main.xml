@@ -12,9 +12,11 @@
         android:layout_height="180dp"
         android:layout_marginStart="20dp"
         android:layout_marginTop="51dp"
+        android:layout_marginEnd="11dp"
         android:onClick="showChoices"
         android:tag="movies"
         app:cardBackgroundColor="@color/colorPrimary"
+        app:layout_constraintEnd_toStartOf="@+id/seriesCard"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/welcomeText">
 
@@ -32,12 +34,14 @@
         android:id="@+id/seriesCard"
         android:layout_width="180dp"
         android:layout_height="180dp"
+        android:layout_marginStart="11dp"
         android:layout_marginTop="51dp"
         android:layout_marginEnd="20dp"
         android:onClick="showChoices"
         android:tag="series"
         app:cardBackgroundColor="@color/colorPrimary"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/moviesCard"
         app:layout_constraintTop_toBottomOf="@+id/welcomeText">
 
         <TextView

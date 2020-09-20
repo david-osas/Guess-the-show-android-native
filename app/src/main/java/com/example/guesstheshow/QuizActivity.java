@@ -14,12 +14,22 @@ public class QuizActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_quiz);
 
-        viewModel = new ViewModelProvider(this).get(QuizViewModel.class);
+        Intent intent = getIntent();
 
-        if(viewModel.category.isEmpty()){
-            Intent intent = getIntent();
-            viewModel.category = intent.getStringExtra("category");
-            viewModel.tag = intent.getStringExtra("tag");
+        viewModel = new ViewModelProvider(this).get(QuizViewModel.class);
+        viewModel.setContext(getApplicationContext());
+        viewModel.setCategory(intent.getStringExtra("category"));
+        viewModel.setTag(intent.getStringExtra("choice"));
+
+        if(!viewModel.state){
+            viewModel.startRequest();
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+
+        viewModel.stopRequests();
     }
 }
