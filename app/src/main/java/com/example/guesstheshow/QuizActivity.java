@@ -1,10 +1,14 @@
 package com.example.guesstheshow;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
+
+import java.util.ArrayList;
 
 public class QuizActivity extends AppCompatActivity {
     private QuizViewModel viewModel;
@@ -24,6 +28,13 @@ public class QuizActivity extends AppCompatActivity {
         if(!viewModel.state){
             viewModel.startRequest();
         }
+
+        viewModel.getDataPairs().observe(this, new Observer<ArrayList<String[]>>() {
+            @Override
+            public void onChanged(ArrayList<String[]> strings) {
+
+            }
+        });
     }
 
     @Override

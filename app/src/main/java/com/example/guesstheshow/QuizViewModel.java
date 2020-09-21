@@ -3,6 +3,8 @@ package com.example.guesstheshow;
 import android.content.Context;
 import android.util.Log;
 
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.android.volley.NetworkResponse;
@@ -29,13 +31,15 @@ public class QuizViewModel extends ViewModel {
     private String animeShowsBaseUrl = "https://api.jikan.moe/v3/top/anime/%d/tv";
     private String animeCharactersBaseUrl = "https://api.jikan.moe/v3/top/characters/%d";
     private RequestQueue requestQueue;
-    private ArrayList<String[]> dataPairs = new ArrayList<>();
-    private ArrayList<String> dataTitles = new ArrayList<>();
+    private MutableLiveData<ArrayList<String[]>> dataPairs = new MutableLiveData<>();
+    private MutableLiveData<ArrayList<String>> dataTitles = new MutableLiveData<>();
     public boolean state = false;
 
     public void setContext(Context c){
         if(requestQueue == null){
             requestQueue = Volley.newRequestQueue(c);
+            dataPairs.setValue(new ArrayList<String[]>());
+            dataTitles.setValue(new ArrayList<String>());
         }
     }
 
@@ -46,11 +50,11 @@ public class QuizViewModel extends ViewModel {
         tag = s;
     }
 
-    public ArrayList<String[]> getDataPairs() {
+    public LiveData<ArrayList<String[]>> getDataPairs() {
         return dataPairs;
     }
 
-    public ArrayList<String> getDataTitles(){
+    public LiveData<ArrayList<String>> getDataTitles(){
         return dataTitles;
     }
 
@@ -143,15 +147,15 @@ public class QuizViewModel extends ViewModel {
 
         if(category.equals("anime")){
             for (int animePage : animePages) {
-                url = String.format(url, animePage);
-                data = getAnimeObject(url);
+                String tempUrl = String.format(url, animePage);
+                data = getAnimeObject(tempUrl);
                 data.setTag(requestTag);
                 requestQueue.add(data);
             }
         }else if(tag.equals("shows")){
             for (int tmdbPage : tmdbPages) {
-                url = String.format(url, tmdbPage);
-                data = getTMDBShowsObject(url);
+                String tempUrl = String.format(url, tmdbPage);
+                data = getTMDBShowsObject(tempUrl, category);
                 data.setTag(requestTag);
                 requestQueue.add(data);
             }
@@ -168,8 +172,15 @@ public class QuizViewModel extends ViewModel {
                     for(int j = 0; j < array.length(); j++){
                         JSONObject object = array.getJSONObject(j);
                         String[] pairs = {object.getString("title"), object.getString("image_url")};
-                        dataPairs.add(pairs);
-                        dataTitles.add(object.getString("title"));
+                        //dataPairs.add(pairs);
+                        ArrayList<String[]> tempPairs = dataPairs.getValue();
+                        tempPairs.add(pairs);
+                        dataPairs.postValue(tempPairs);
+
+                        ArrayList<String> tempTitles = dataTitles.getValue();
+                        tempTitles.add(object.getString("title"));
+                        dataTitles.postValue(tempTitles);
+                        //dataTitles.add(object.getString("title"));
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -185,7 +196,7 @@ public class QuizViewModel extends ViewModel {
         return data;
     }
 
-    private JsonObjectRequest getTMDBShowsObject(String url){
+    private JsonObjectRequest getTMDBShowsObject(String url, final String category){
         JsonObjectRequest data = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
@@ -193,9 +204,17 @@ public class QuizViewModel extends ViewModel {
                     JSONArray array = response.getJSONArray("results");
                     for(int j = 0; j < array.length(); j++){
                         JSONObject object = array.getJSONObject(j);
-                        String[] pairs = {object.getString("title"), object.getString("poster_path")};
-                        dataPairs.add(pairs);
-                        dataTitles.add(object.getString("title"));
+                        String title = category.equals("movies")? object.getString("title") : object.getString("name");
+                        String[] pairs = {title, object.getString("poster_path")};
+                        //dataPairs.add(pairs);
+                        //dataTitles.add(object.getString("title"));
+                        ArrayList<String[]> tempPairs = dataPairs.getValue();
+                        tempPairs.add(pairs);
+                        dataPairs.postValue(tempPairs);
+
+                        ArrayList<String> tempTitles = dataTitles.getValue();
+                        tempTitles.add(title);
+                        dataTitles.postValue(tempTitles);
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -221,8 +240,15 @@ public class QuizViewModel extends ViewModel {
                     for(int j = 0; j < length; j++){
                         JSONObject object = array.getJSONObject(j);
                         String[] pairs = {object.getString("character"), object.getString("profile_path")};
-                        dataPairs.add(pairs);
-                        dataTitles.add(object.getString("character"));
+                        //dataPairs.add(pairs);
+                        //dataTitles.add(object.getString("character"));
+                        ArrayList<String[]> tempPairs = dataPairs.getValue();
+                        tempPairs.add(pairs);
+                        dataPairs.postValue(tempPairs);
+
+                        ArrayList<String> tempTitles = dataTitles.getValue();
+                        tempTitles.add(object.getString("character"));
+                        dataTitles.postValue(tempTitles);
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
