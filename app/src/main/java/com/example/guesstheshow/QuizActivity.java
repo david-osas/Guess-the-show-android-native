@@ -29,10 +29,25 @@ public class QuizActivity extends AppCompatActivity {
             viewModel.startRequest();
         }
 
-        viewModel.getDataPairs().observe(this, new Observer<ArrayList<String[]>>() {
+        viewModel.getDataShowsPairs().observe(this, new Observer<ArrayList<String[]>>() {
             @Override
             public void onChanged(ArrayList<String[]> strings) {
+                Log.i("mum",Integer.toString(strings.size()));
+                Log.i("david","start");
+                for(String[] val : strings){
+                    Log.i("david", val[0] + " "+ val[1]);
+                }
+            }
+        });
 
+        viewModel.getDataCharactersPairs().observe(this, new Observer<ArrayList<String[]>>() {
+            @Override
+            public void onChanged(ArrayList<String[]> strings) {
+                Log.i("mum",Integer.toString(strings.size()));
+                Log.i("david","start");
+                for(String[] val : strings){
+                    Log.i("david", val[0] + " "+ val[1]+ " "+val[2]);
+                }
             }
         });
     }

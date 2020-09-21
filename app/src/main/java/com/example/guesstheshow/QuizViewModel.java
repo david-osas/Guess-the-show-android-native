@@ -31,14 +31,16 @@ public class QuizViewModel extends ViewModel {
     private String animeShowsBaseUrl = "https://api.jikan.moe/v3/top/anime/%d/tv";
     private String animeCharactersBaseUrl = "https://api.jikan.moe/v3/top/characters/%d";
     private RequestQueue requestQueue;
-    private MutableLiveData<ArrayList<String[]>> dataPairs = new MutableLiveData<>();
+    private MutableLiveData<ArrayList<String[]>> dataShowsPairs = new MutableLiveData<>();
+    private MutableLiveData<ArrayList<String[]>> dataCharactersPairs = new MutableLiveData<>();
     private MutableLiveData<ArrayList<String>> dataTitles = new MutableLiveData<>();
     public boolean state = false;
 
     public void setContext(Context c){
         if(requestQueue == null){
             requestQueue = Volley.newRequestQueue(c);
-            dataPairs.setValue(new ArrayList<String[]>());
+            dataShowsPairs.setValue(new ArrayList<String[]>());
+            dataCharactersPairs.setValue(new ArrayList<String[]>());
             dataTitles.setValue(new ArrayList<String>());
         }
     }
@@ -50,8 +52,11 @@ public class QuizViewModel extends ViewModel {
         tag = s;
     }
 
-    public LiveData<ArrayList<String[]>> getDataPairs() {
-        return dataPairs;
+    public LiveData<ArrayList<String[]>> getDataShowsPairs() {
+        return dataShowsPairs;
+    }
+    public LiveData<ArrayList<String[]>> getDataCharactersPairs() {
+        return dataCharactersPairs;
     }
 
     public LiveData<ArrayList<String>> getDataTitles(){
@@ -102,9 +107,10 @@ public class QuizViewModel extends ViewModel {
                     while(i < array.length()){
                         JSONObject object = array.getJSONObject(i);
                         int id = object.getInt("id");
+                        String title = category.equals("movies")? object.getString("title") : object.getString("name");
                         String characterUrl = category.equals("movies") ? String.format(tmdbCharactersBaseUrl, "movie", id, BuildConfig.TMDB_KEY)
                                 : String.format(tmdbCharactersBaseUrl, "tv", id, BuildConfig.TMDB_KEY);
-                        JsonObjectRequest newObjectRequest = getTMDBCharactersObject(characterUrl);
+                        JsonObjectRequest newObjectRequest = getTMDBCharactersObject(characterUrl, title);
                         newObjectRequest.setTag(requestTag);
                         requestQueue.add(newObjectRequest);
 
@@ -155,7 +161,7 @@ public class QuizViewModel extends ViewModel {
         }else if(tag.equals("shows")){
             for (int tmdbPage : tmdbPages) {
                 String tempUrl = String.format(url, tmdbPage);
-                data = getTMDBShowsObject(tempUrl, category);
+                data = getTMDBShowsObject(tempUrl);
                 data.setTag(requestTag);
                 requestQueue.add(data);
             }
@@ -172,15 +178,13 @@ public class QuizViewModel extends ViewModel {
                     for(int j = 0; j < array.length(); j++){
                         JSONObject object = array.getJSONObject(j);
                         String[] pairs = {object.getString("title"), object.getString("image_url")};
-                        //dataPairs.add(pairs);
-                        ArrayList<String[]> tempPairs = dataPairs.getValue();
+                        ArrayList<String[]> tempPairs = dataShowsPairs.getValue();
                         tempPairs.add(pairs);
-                        dataPairs.postValue(tempPairs);
+                        dataShowsPairs.postValue(tempPairs);
 
                         ArrayList<String> tempTitles = dataTitles.getValue();
                         tempTitles.add(object.getString("title"));
                         dataTitles.postValue(tempTitles);
-                        //dataTitles.add(object.getString("title"));
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -196,7 +200,7 @@ public class QuizViewModel extends ViewModel {
         return data;
     }
 
-    private JsonObjectRequest getTMDBShowsObject(String url, final String category){
+    private JsonObjectRequest getTMDBShowsObject(String url){
         JsonObjectRequest data = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
@@ -206,11 +210,9 @@ public class QuizViewModel extends ViewModel {
                         JSONObject object = array.getJSONObject(j);
                         String title = category.equals("movies")? object.getString("title") : object.getString("name");
                         String[] pairs = {title, object.getString("poster_path")};
-                        //dataPairs.add(pairs);
-                        //dataTitles.add(object.getString("title"));
-                        ArrayList<String[]> tempPairs = dataPairs.getValue();
+                        ArrayList<String[]> tempPairs = dataShowsPairs.getValue();
                         tempPairs.add(pairs);
-                        dataPairs.postValue(tempPairs);
+                        dataShowsPairs.postValue(tempPairs);
 
                         ArrayList<String> tempTitles = dataTitles.getValue();
                         tempTitles.add(title);
@@ -230,7 +232,7 @@ public class QuizViewModel extends ViewModel {
         return data;
     }
 
-    private JsonObjectRequest getTMDBCharactersObject(String url){
+    private JsonObjectRequest getTMDBCharactersObject(String url, final String showTitle){
         JsonObjectRequest data = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
@@ -239,12 +241,10 @@ public class QuizViewModel extends ViewModel {
                     int length = Math.min(array.length(), 20);
                     for(int j = 0; j < length; j++){
                         JSONObject object = array.getJSONObject(j);
-                        String[] pairs = {object.getString("character"), object.getString("profile_path")};
-                        //dataPairs.add(pairs);
-                        //dataTitles.add(object.getString("character"));
-                        ArrayList<String[]> tempPairs = dataPairs.getValue();
+                        String[] pairs = {object.getString("character"), object.getString("profile_path"), showTitle};
+                        ArrayList<String[]> tempPairs = dataCharactersPairs.getValue();
                         tempPairs.add(pairs);
-                        dataPairs.postValue(tempPairs);
+                        dataCharactersPairs.postValue(tempPairs);
 
                         ArrayList<String> tempTitles = dataTitles.getValue();
                         tempTitles.add(object.getString("character"));
