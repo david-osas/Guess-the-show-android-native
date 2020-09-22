@@ -1,6 +1,7 @@
 package com.example.guesstheshow;
 
 import android.content.Context;
+import android.os.CountDownTimer;
 import android.util.Log;
 
 import androidx.lifecycle.LiveData;
@@ -36,6 +37,8 @@ public class QuizViewModel extends ViewModel {
     private int index = 0;
     private MutableLiveData<Boolean> fetchingData = new MutableLiveData<>();
     private MutableLiveData<Integer> rounds = new MutableLiveData<>();
+    private MutableLiveData<Integer> timer = new MutableLiveData<>();
+    private int questions = 0, correct = 0, completedRounds = 0;
     public boolean state = false;
 
 
@@ -69,16 +72,49 @@ public class QuizViewModel extends ViewModel {
         return rounds;
     }
 
+    public LiveData<Integer> getTimer(){
+        return timer;
+    }
+
+    public int[] getQuizScores(){
+        return new int[]{completedRounds, questions, correct};
+    }
+
+    public void startTimer(){
+        new CountDownTimer(40000, 1000) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+                timer.setValue((int) (millisUntilFinished/1000));
+            }
+
+            @Override
+            public void onFinish() {
+
+            }
+        }.start();
+    }
 
     public boolean checkAnswer(String choice){
-        if((index + 1)%10 == 0 && index > 0){
+        boolean val;
+        if((index + 1)%10 == 0){
             if(selectData().size() - (index +1) <= 10){
                 rounds.setValue(2);
             }else{
                 rounds.setValue(1);
             }
+            completedRounds++;
+        }else{
+            rounds.setValue(0);
         }
-        return choice.equalsIgnoreCase(answer[0]);
+
+        if(choice.equalsIgnoreCase(answer[0])){
+            correct++;
+            val = true;
+        }else{
+            val = false;
+        }
+        questions++;
+        return val;
     }
 
     public ArrayList<String> getCurrentQuizData(){

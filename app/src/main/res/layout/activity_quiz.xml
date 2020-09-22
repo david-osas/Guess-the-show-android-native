@@ -25,6 +25,7 @@
         android:layout_marginStart="20dp"
         android:layout_marginBottom="22dp"
         android:background="@color/answer"
+        android:onClick="checkAnswer"
         android:textColor="#FFFFFF"
         android:textSize="20sp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -37,6 +38,7 @@
         android:layout_marginEnd="20dp"
         android:layout_marginBottom="22dp"
         android:background="@color/answer"
+        android:onClick="checkAnswer"
         android:textColor="#FFFFFF"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
@@ -48,6 +50,7 @@
         android:layout_marginStart="20dp"
         android:layout_marginBottom="13dp"
         android:background="@color/answer"
+        android:onClick="checkAnswer"
         android:textColor="#FFFFFF"
         app:layout_constraintBottom_toTopOf="@+id/answer1"
         app:layout_constraintStart_toStartOf="parent" />
@@ -59,6 +62,7 @@
         android:layout_marginEnd="20dp"
         android:layout_marginBottom="13dp"
         android:background="@color/answer"
+        android:onClick="checkAnswer"
         android:textColor="#FFFFFF"
         app:layout_constraintBottom_toTopOf="@+id/answer2"
         app:layout_constraintEnd_toEndOf="parent" />

@@ -13,5 +13,23 @@
 
     <!--    Quiz activity-->
     <string name="imageDescription">quiz image</string>
+    <string name="dialogButton">Continue</string>
+
+    <string name="progressTitle">Current progress</string>
+    <string name="progressMessage">Congratulations, you just finished a round. These are your progress details so far \n
+        -Rounds completed: %d \n
+        -Questions taken: %d \n
+        -Correct answers: %d </string>
+
+    <string name="endMessage">Congratulations, you have completed all available rounds. These are your progress details so far \n
+        -Rounds completed: %d \n
+        -Questions taken: %d \n
+        -Correct answers: %d </string>
+
+    <string name="fetchingDataTitle">Fetching data</string>
+    <string name="fetchingDataMessage">Quiz data is being fetched \n
+        -To play the game select an answer to get a score before the time runs out, time period is forty seconds \n
+        -If the correct answer is selected, the answer box turns green and if the wrong answer is selected, the answer box turns red \n
+        -Questions would be grouped in rounds, total number of rounds is usually 10 and each round usually contains ten questions</string>
 
 </resources>
