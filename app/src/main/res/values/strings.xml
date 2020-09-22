@@ -21,7 +21,7 @@
         -Questions taken: %d \n
         -Correct answers: %d </string>
 
-    <string name="endMessage">Congratulations, you have completed all available rounds. These are your progress details so far \n
+    <string name="endMessage">Congratulations, you are in the last round. These are your progress details so far \n
         -Rounds completed: %d \n
         -Questions taken: %d \n
         -Correct answers: %d </string>

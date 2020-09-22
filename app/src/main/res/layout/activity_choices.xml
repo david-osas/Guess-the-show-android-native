@@ -33,6 +33,7 @@
     </androidx.cardview.widget.CardView>
 
     <androidx.cardview.widget.CardView
+        android:id="@+id/charactersCard"
         android:layout_width="0dp"
         android:layout_height="200dp"
         android:layout_marginStart="20dp"

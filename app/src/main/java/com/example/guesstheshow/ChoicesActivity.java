@@ -6,16 +6,25 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
+import com.example.guesstheshow.databinding.ActivityChoicesBinding;
+
 public class ChoicesActivity extends AppCompatActivity {
-    String category;
+    private String category;
+    private ActivityChoicesBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_choices);
+        binding = ActivityChoicesBinding.inflate(getLayoutInflater());
+        View root = binding.getRoot();
+        setContentView(root);
 
         Intent intent = getIntent();
         category = intent.getStringExtra("category");
+
+        if(!category.equals("anime")){
+            binding.charactersCard.setVisibility(View.INVISIBLE);
+        }
     }
 
     public void showRounds(View view){

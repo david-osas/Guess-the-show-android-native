@@ -7,17 +7,25 @@ import androidx.lifecycle.ViewModelProvider;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.CountDownTimer;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
 import com.example.guesstheshow.databinding.ActivityQuizBinding;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class QuizActivity extends AppCompatActivity {
     private ActivityQuizBinding binding;
     private QuizViewModel viewModel;
     private AlertDialog dialog;
+    private Button dialogButton, answerButton;
+    private Button[] buttonArray;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,43 +35,75 @@ public class QuizActivity extends AppCompatActivity {
         setContentView(root);
 
         Intent intent = getIntent();
+        buttonArray = new Button[]{binding.answer1, binding.answer2, binding.answer3, binding.answer4};
 
         viewModel = new ViewModelProvider(this).get(QuizViewModel.class);
         viewModel.setInitial(getApplicationContext());
-        viewModel.setCategory(intent.getStringExtra("category"));
-        viewModel.setTag(intent.getStringExtra("choice"));
+        viewModel.category = intent.getStringExtra("category");
+        viewModel.tag = intent.getStringExtra("choice");
+        viewModel.width = binding.imageView.getWidth();
+        viewModel.height = binding.imageView.getHeight();
 
-        createFetchingDialog();
+
 
         if(!viewModel.state){
+            createFetchingDialog();
             dialog.show();
+            dialog.setCanceledOnTouchOutside(false);
+            dialogButton = dialog.getButton(AlertDialog.BUTTON_NEUTRAL);
+            dialogButton.setEnabled(false);
             viewModel.startRequest();
         }
 
+        viewModel.getImage().observe(this, new Observer<Bitmap>() {
+            @Override
+            public void onChanged(Bitmap bitmap) {
+                binding.imageView.setImageBitmap(bitmap);
+            }
+        });
+
         viewModel.checkRounds().observe(this, new Observer<Integer>() {
             @Override
-            public void onChanged(Integer integer) {
+            public void onChanged(final Integer integer) {
                 createRoundsDialog();
-                int[] scores = viewModel.getQuizScores();
-                String val;
-                if(integer == 1){
-                    val = getString(R.string.progressMessage);
-                    val = String.format(val, scores[0], scores[1], scores[2] );
-                    dialog.setMessage(val);
-                    dialog.show();
-                }else if(integer == 2){
-                    val = getString(R.string.endMessage);
-                    val = String.format(val, scores[0], scores[1], scores[2] );
-                    dialog.setMessage(val);
-                    dialog.show();
-                }
+
+                new CountDownTimer(1000, 500) {
+                    @Override
+                    public void onTick(long millisUntilFinished) {
+                    }
+
+                    @Override
+                    public void onFinish() {
+                        String val;
+                        int[] scores = viewModel.getQuizScores();
+                        if(integer == 1){
+                            viewModel.stopTimer();
+                            val = getString(R.string.progressMessage);
+                            val = String.format(val, scores[0], scores[1], scores[2] );
+                            dialog.setMessage(val);
+                            dialog.show();
+                        }else if(integer == 2){
+                            viewModel.stopTimer();
+                            val = getString(R.string.endMessage);
+                            val = String.format(val, scores[0], scores[1], scores[2] );
+                            dialog.setMessage(val);
+                            dialog.show();
+                        }
+                        dialog.setCanceledOnTouchOutside(false);
+                    }
+                }.start();
+
             }
         });
 
         viewModel.getTimer().observe(this, new Observer<Integer>() {
             @Override
             public void onChanged(Integer integer) {
-                binding.countdownText.setText(Integer.toString(integer));
+                if(integer == -1){
+                    setQuizDetails();
+                }else{
+                    binding.countdownText.setText(Integer.toString(integer));
+                }
             }
         });
 
@@ -71,7 +111,7 @@ public class QuizActivity extends AppCompatActivity {
             @Override
             public void onChanged(Boolean fetching) {
                 if(!fetching){
-                    dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setEnabled(true);
+                    dialogButton.setEnabled(true);
                 }
 
             }
@@ -80,24 +120,45 @@ public class QuizActivity extends AppCompatActivity {
     }
 
     public void checkAnswer(View view){
-        Button button = (Button) view;
+        answerButton = (Button) view;
 
-        Button[] buttonArray = {binding.answer1, binding.answer2, binding.answer3, binding.answer4};
         for(Button b : buttonArray){
             b.setEnabled(false);
         }
 
-        boolean check = viewModel.checkAnswer(button.getText().toString());
+        boolean check = viewModel.checkAnswer(answerButton.getText().toString());
         if(check){
-            button.setBackgroundColor(getColor(R.color.correct));
+            answerButton.setBackgroundColor(getColor(R.color.correct));
         }else{
-            button.setBackgroundColor(getColor(R.color.wrong));
+            answerButton.setBackgroundColor(getColor(R.color.wrong));
         }
 
-        viewModel.startTimer();
+        if(!viewModel.isRound()){
+            new CountDownTimer(1000, 500) {
+                @Override
+                public void onTick(long millisUntilFinished) {
+
+                }
+
+                @Override
+                public void onFinish() {
+                    refreshAnswers(answerButton);
+                }
+            }.start();
+        }
     }
 
-    public void createFetchingDialog(){
+    public void refreshAnswers(Button button){
+        for(Button b : buttonArray){
+            b.setEnabled(true);
+        }
+        viewModel.stopTimer();
+        button.setBackgroundColor(getColor(R.color.options));
+        binding.imageView.setImageDrawable(getDrawable(R.drawable.ic_launcher_foreground));
+        setQuizDetails();
+    }
+
+    public void createFetchingDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
         builder.setTitle(R.string.fetchingDataTitle)
@@ -105,12 +166,12 @@ public class QuizActivity extends AppCompatActivity {
                 .setNeutralButton(R.string.dialogButton, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+                        setQuizDetails();
                         dialog.dismiss();
                     }
                 });
 
         dialog = builder.create();
-        dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setEnabled(false);
     }
 
     public void createRoundsDialog(){
@@ -120,11 +181,27 @@ public class QuizActivity extends AppCompatActivity {
                 .setNeutralButton(R.string.dialogButton, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+                        refreshAnswers(answerButton);
                         dialog.dismiss();
                     }
                 });
 
         dialog = builder.create();
+    }
+
+    public void setQuizDetails(){
+        int answer = (int) Math.floor(Math.random() * 4);
+        ArrayList<String> details = viewModel.getCurrentQuizData();
+        List<String> subDetails = details.subList(1,4);
+
+        for(int i = 0; i < buttonArray.length; i++){
+            if(i != answer){
+                buttonArray[i].setText(subDetails.get(0));
+                subDetails.remove(0);
+            }
+        }
+        buttonArray[answer].setText(details.get(0));
+
     }
 
     @Override

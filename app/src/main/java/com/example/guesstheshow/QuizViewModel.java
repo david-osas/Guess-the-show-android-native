@@ -1,8 +1,10 @@
 package com.example.guesstheshow;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.os.CountDownTimer;
 import android.util.Log;
+import android.widget.ImageView;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -12,6 +14,7 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.ImageRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
@@ -23,22 +26,24 @@ import java.util.ArrayList;
 import java.util.HashSet;
 
 public class QuizViewModel extends ViewModel {
-    private String category, tag;
+    public String category, tag;
     private int[] tmdbPages = {1,2,3,4,5}, animePages = {1,2};
     private String requestTag = "quiz_data";
     private String tmdbShowsBaseUrl = "https://api.themoviedb.org/3/%s/popular?api_key=%s&language=en-US&page=";
-    private String tmdbCharactersBaseUrl = "https://api.themoviedb.org/3/%s/%d/credits?api_key=%s";
     private String animeShowsBaseUrl = "https://api.jikan.moe/v3/top/anime/%d/tv";
     private String animeCharactersBaseUrl = "https://api.jikan.moe/v3/top/characters/%d";
+    private String imageBaseUrl = "https://image.tmdb.org/t/p/w185";
     private RequestQueue requestQueue;
     private ArrayList<String[]> generalDataPairs = new ArrayList<>();
-    private ArrayList<String[]> charactersDataPairs = new ArrayList<>();
-    private String[] answer;
+    private String answer;
     private int index = 0;
     private MutableLiveData<Boolean> fetchingData = new MutableLiveData<>();
     private MutableLiveData<Integer> rounds = new MutableLiveData<>();
     private MutableLiveData<Integer> timer = new MutableLiveData<>();
+    private MutableLiveData<Bitmap> image = new MutableLiveData<>();
     private int questions = 0, correct = 0, completedRounds = 0;
+    private CountDownTimer countDownTimer;
+    public int width, height;
     public boolean state = false;
 
 
@@ -48,20 +53,6 @@ public class QuizViewModel extends ViewModel {
             fetchingData.setValue(true);
             rounds.setValue(0);
         }
-    }
-
-    public void setCategory(String s){
-        category = s;
-    }
-    public void setTag(String s){
-        tag = s;
-    }
-
-    public ArrayList<String[]> getGeneralDataPairs() {
-        return generalDataPairs;
-    }
-    public ArrayList<String[]> getCharactersDataPairs() {
-        return charactersDataPairs;
     }
 
     public LiveData<Boolean> isFetchingData(){
@@ -76,28 +67,41 @@ public class QuizViewModel extends ViewModel {
         return timer;
     }
 
+    public LiveData<Bitmap> getImage(){
+        return image;
+    }
+
     public int[] getQuizScores(){
         return new int[]{completedRounds, questions, correct};
     }
 
     public void startTimer(){
-        new CountDownTimer(40000, 1000) {
-            @Override
-            public void onTick(long millisUntilFinished) {
-                timer.setValue((int) (millisUntilFinished/1000));
-            }
+        countDownTimer = new CountDownTimer(40000, 1000) {
+                @Override
+                public void onTick(long millisUntilFinished) {
+                    timer.setValue((int) (millisUntilFinished/1000));
+                }
 
-            @Override
-            public void onFinish() {
+                @Override
+                public void onFinish() {
+                    timer.setValue(-1);
+                }
+            };
+        countDownTimer.start();
+    }
 
-            }
-        }.start();
+    public void stopTimer(){
+        countDownTimer.cancel();
+    }
+
+    public boolean isRound(){
+        return rounds.getValue() > 0;
     }
 
     public boolean checkAnswer(String choice){
         boolean val;
-        if((index + 1)%10 == 0){
-            if(selectData().size() - (index +1) <= 10){
+        if((index)%10 == 0){
+            if(generalDataPairs.size() - (index) <= 10){
                 rounds.setValue(2);
             }else{
                 rounds.setValue(1);
@@ -107,7 +111,7 @@ public class QuizViewModel extends ViewModel {
             rounds.setValue(0);
         }
 
-        if(choice.equalsIgnoreCase(answer[0])){
+        if(choice.equalsIgnoreCase(answer)){
             correct++;
             val = true;
         }else{
@@ -118,15 +122,24 @@ public class QuizViewModel extends ViewModel {
     }
 
     public ArrayList<String> getCurrentQuizData(){
+        ImageRequest request;
         ArrayList<String> values = new ArrayList<>();
+        String[] current = generalDataPairs.get(index);
+        answer = current[0];
 
-        String[] current = selectData().get(index);
-        answer = current;
+        if(category.equals("anime")){
+            request = getImageRequest(current[1]);
+        }else{
+            request = getImageRequest(imageBaseUrl+current[1]);
+        }
+        request.setTag(requestTag);
+        requestQueue.add(request);
+
         values.add(current[0]);
 
         HashSet<Integer> randoms = getRandomIndexes(generalDataPairs.size());
         for(int r : randoms){
-            String[] others = selectData().get(r);
+            String[] others = generalDataPairs.get(r);
             values.add(others[0]);
         }
         index++;
@@ -147,14 +160,6 @@ public class QuizViewModel extends ViewModel {
 
     }
 
-    private ArrayList<String[]> selectData(){
-        if(!category.equals("anime") && tag.equals("characters")){
-            return charactersDataPairs;
-        }else{
-            return generalDataPairs;
-        }
-    }
-
 
     public void startRequest(){
         state = true;
@@ -163,24 +168,14 @@ public class QuizViewModel extends ViewModel {
         if(category.equals("anime")){
             url = buildUrl("anime",tag);
             
-        }else{
-            if(category.equals("movies")){
+        }else if(category.equals("movies")){
                 url = buildUrl("movie", tag);
 
-            }else if(category.equals("series")){
-                url = buildUrl("tv", tag);
+        }else{
+            url = buildUrl("tv", tag);
 
-            }
-
-            if(tag.equals("characters")){
-                url = String.format(url, 1);
-                JsonObjectRequest idsRequest = getIdsObjectRequest(url);
-                idsRequest.setTag(requestTag);
-                requestQueue.add(idsRequest);
-            }
         }
-        makeApiCall(category, tag, url);
-
+        makeApiCall(url);
     }
 
     public void stopRequests(){
@@ -189,39 +184,6 @@ public class QuizViewModel extends ViewModel {
         }
     }
 
-    private JsonObjectRequest getIdsObjectRequest(String url){
-        JsonObjectRequest idsRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-                try {
-                    JSONArray array = response.getJSONArray("results");
-                    int i = 0;
-                    while(i < array.length()){
-                        JSONObject object = array.getJSONObject(i);
-                        int id = object.getInt("id");
-                        String title = category.equals("movies")? object.getString("title") : object.getString("name");
-                        String characterUrl = category.equals("movies") ? String.format(tmdbCharactersBaseUrl, "movie", id, BuildConfig.TMDB_KEY)
-                                : String.format(tmdbCharactersBaseUrl, "tv", id, BuildConfig.TMDB_KEY);
-                        JsonObjectRequest newObjectRequest = getTMDBCharactersObject(characterUrl, title, i);
-                        newObjectRequest.setTag(requestTag);
-                        requestQueue.add(newObjectRequest);
-
-                        i++;
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.i("id error", error.getMessage());
-            }
-        });
-
-        return idsRequest;
-    }
 
     private String buildUrl(String category, String tag){
         String url;
@@ -234,13 +196,12 @@ public class QuizViewModel extends ViewModel {
             }
         }else{
             url = String.format(tmdbShowsBaseUrl, category, BuildConfig.TMDB_KEY) + "%d";
-            
         }
 
         return url;
     }
 
-    private  void makeApiCall(String category, String tag, String url){
+    private  void makeApiCall(String url){
         JsonObjectRequest data;
 
         if(category.equals("anime")){
@@ -250,7 +211,7 @@ public class QuizViewModel extends ViewModel {
                 data.setTag(requestTag);
                 requestQueue.add(data);
             }
-        }else if(tag.equals("shows")){
+        }else{
             for (int tmdbPage : tmdbPages) {
                 String tempUrl = String.format(url, tmdbPage);
                 data = getTMDBShowsObject(tempUrl, tmdbPage);
@@ -282,7 +243,7 @@ public class QuizViewModel extends ViewModel {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.i("id error", error.getMessage());
+                error.printStackTrace();
             }
         });
 
@@ -311,40 +272,29 @@ public class QuizViewModel extends ViewModel {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.i("id error", error.getMessage());
+                error.printStackTrace();
             }
         });
 
         return data;
     }
 
-    private JsonObjectRequest getTMDBCharactersObject(String url, final String showTitle, final int page){
-        JsonObjectRequest data = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+    private ImageRequest getImageRequest(String url){
+        ImageRequest request = new ImageRequest(url, new Response.Listener<Bitmap>() {
             @Override
-            public void onResponse(JSONObject response) {
-                try {
-                    JSONArray array = response.getJSONArray("cast");
-                    int length = Math.min(array.length(), 20);
-                    for(int j = 0; j < length; j++){
-                        JSONObject object = array.getJSONObject(j);
-                        String[] pairs = {object.getString("character"), object.getString("profile_path"), showTitle};
-                        charactersDataPairs.add(pairs);
-                        if(j == array.length()-1 && page == 19){
-                            fetchingData.postValue(false);
-                        }
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+            public void onResponse(Bitmap response) {
+                image.postValue(response);
+                startTimer();
             }
-        }, new Response.ErrorListener() {
+        }, width, height, ImageView.ScaleType.FIT_XY, null
+                , new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.i("id error", error.getMessage());
+                error.printStackTrace();
             }
         });
 
-        return data;
+        return request;
     }
 
 }

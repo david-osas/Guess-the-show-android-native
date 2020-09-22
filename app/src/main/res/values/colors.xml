@@ -5,7 +5,7 @@
     <color name="colorAccent">#fc5185</color>
 
 <!--    Quiz activity-->
-    <color name="answer">#6fbbd3</color>
+    <color name="options">#6fbbd3</color>
     <color name="correct">#28df99</color>
     <color name="wrong">#ff414d</color>
 
