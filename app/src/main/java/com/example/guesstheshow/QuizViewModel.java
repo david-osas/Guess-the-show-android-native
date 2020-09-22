@@ -3,6 +3,8 @@ package com.example.guesstheshow;
 import android.content.Context;
 import android.util.Log;
 
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.android.volley.Request;
@@ -32,11 +34,16 @@ public class QuizViewModel extends ViewModel {
     private ArrayList<String[]> charactersDataPairs = new ArrayList<>();
     private String[] answer;
     private int index = 0;
+    private MutableLiveData<Boolean> fetchingData = new MutableLiveData<>();
+    private MutableLiveData<Integer> rounds = new MutableLiveData<>();
     public boolean state = false;
+
 
     public void setInitial(Context c){
         if(requestQueue == null){
             requestQueue = Volley.newRequestQueue(c);
+            fetchingData.setValue(true);
+            rounds.setValue(0);
         }
     }
 
@@ -54,8 +61,23 @@ public class QuizViewModel extends ViewModel {
         return charactersDataPairs;
     }
 
+    public LiveData<Boolean> isFetchingData(){
+        return fetchingData;
+    }
+
+    public LiveData<Integer> checkRounds(){
+        return rounds;
+    }
+
 
     public boolean checkAnswer(String choice){
+        if((index + 1)%10 == 0 && index > 0){
+            if(selectData().size() - (index +1) <= 10){
+                rounds.setValue(2);
+            }else{
+                rounds.setValue(1);
+            }
+        }
         return choice.equalsIgnoreCase(answer[0]);
     }
 
@@ -75,6 +97,7 @@ public class QuizViewModel extends ViewModel {
 
         return values;
     }
+    
     private HashSet<Integer> getRandomIndexes(int range){
         HashSet<Integer> randoms = new HashSet<>();
 
@@ -143,7 +166,7 @@ public class QuizViewModel extends ViewModel {
                         String title = category.equals("movies")? object.getString("title") : object.getString("name");
                         String characterUrl = category.equals("movies") ? String.format(tmdbCharactersBaseUrl, "movie", id, BuildConfig.TMDB_KEY)
                                 : String.format(tmdbCharactersBaseUrl, "tv", id, BuildConfig.TMDB_KEY);
-                        JsonObjectRequest newObjectRequest = getTMDBCharactersObject(characterUrl, title);
+                        JsonObjectRequest newObjectRequest = getTMDBCharactersObject(characterUrl, title, i);
                         newObjectRequest.setTag(requestTag);
                         requestQueue.add(newObjectRequest);
 
@@ -187,14 +210,14 @@ public class QuizViewModel extends ViewModel {
         if(category.equals("anime")){
             for (int animePage : animePages) {
                 String tempUrl = String.format(url, animePage);
-                data = getAnimeObject(tempUrl);
+                data = getAnimeObject(tempUrl, animePage);
                 data.setTag(requestTag);
                 requestQueue.add(data);
             }
         }else if(tag.equals("shows")){
             for (int tmdbPage : tmdbPages) {
                 String tempUrl = String.format(url, tmdbPage);
-                data = getTMDBShowsObject(tempUrl);
+                data = getTMDBShowsObject(tempUrl, tmdbPage);
                 data.setTag(requestTag);
                 requestQueue.add(data);
             }
@@ -202,7 +225,7 @@ public class QuizViewModel extends ViewModel {
 
     }
 
-    private JsonObjectRequest getAnimeObject(String url){
+    private JsonObjectRequest getAnimeObject(String url, final int page){
         JsonObjectRequest data = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
@@ -212,6 +235,9 @@ public class QuizViewModel extends ViewModel {
                         JSONObject object = array.getJSONObject(j);
                         String[] pairs = {object.getString("title"), object.getString("image_url")};
                         generalDataPairs.add(pairs);
+                        if(j == array.length()-1 && page == 2){
+                            fetchingData.postValue(false);
+                        }
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -227,7 +253,7 @@ public class QuizViewModel extends ViewModel {
         return data;
     }
 
-    private JsonObjectRequest getTMDBShowsObject(String url){
+    private JsonObjectRequest getTMDBShowsObject(String url,final int page){
         JsonObjectRequest data = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
@@ -238,6 +264,9 @@ public class QuizViewModel extends ViewModel {
                         String title = category.equals("movies")? object.getString("title") : object.getString("name");
                         String[] pairs = {title, object.getString("poster_path")};
                         generalDataPairs.add(pairs);
+                        if(j == array.length()-1 && page == 5){
+                            fetchingData.postValue(false);
+                        }
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -253,7 +282,7 @@ public class QuizViewModel extends ViewModel {
         return data;
     }
 
-    private JsonObjectRequest getTMDBCharactersObject(String url, final String showTitle){
+    private JsonObjectRequest getTMDBCharactersObject(String url, final String showTitle, final int page){
         JsonObjectRequest data = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
@@ -264,6 +293,9 @@ public class QuizViewModel extends ViewModel {
                         JSONObject object = array.getJSONObject(j);
                         String[] pairs = {object.getString("character"), object.getString("profile_path"), showTitle};
                         charactersDataPairs.add(pairs);
+                        if(j == array.length()-1 && page == 19){
+                            fetchingData.postValue(false);
+                        }
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
