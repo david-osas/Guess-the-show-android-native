@@ -10,6 +10,8 @@
     <!--    Choices activity-->
     <string name="choice_1">Guess the names of popular shows on your screens \n 📺</string>
     <string name="choice_2">Guess the names of your favourite characters \n 🎭</string>
+    <string name="locked">Finish at least 3 rounds in shows mode with at least 10 correctly answered questions to unlock characters mode</string>
+    <string name="unlocked">Congratulations🎉🎉, you have unlocked characters mode </string>
 
     <!--    Quiz activity-->
     <string name="imageDescription">quiz image</string>

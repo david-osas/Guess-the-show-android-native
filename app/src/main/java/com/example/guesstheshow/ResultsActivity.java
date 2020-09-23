@@ -10,6 +10,7 @@ import com.example.guesstheshow.databinding.ActivityResultsBinding;
 
 public class ResultsActivity extends AppCompatActivity {
     private ActivityResultsBinding binding;
+    private String category;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -19,8 +20,19 @@ public class ResultsActivity extends AppCompatActivity {
         setContentView(root);
 
         Intent intent = getIntent();
+        category = intent.getStringExtra("category");
         setDetails(intent.getIntArrayExtra("scores"));
 
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+
+        Intent intent = new Intent(ResultsActivity.this,ChoicesActivity.class);
+        intent.putExtra("category",category);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
     }
 
     public void setDetails(int[] scores){
@@ -30,7 +42,7 @@ public class ResultsActivity extends AppCompatActivity {
         binding.rounds.setText(rounds);
         binding.questions.setText(questions);
         binding.number.setText(number);
-        if(scores[2] >= scores[1]/2){
+        if(scores[2] >= scores[1]/2 && scores[2] != 0){
             binding.number.setTextColor(getColor(R.color.correct));
         }else{
             binding.number.setTextColor(getColor(R.color.wrong));

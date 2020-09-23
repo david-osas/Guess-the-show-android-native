@@ -5,8 +5,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -113,7 +115,25 @@ public class QuizActivity extends AppCompatActivity {
                 if(!fetching){
                     dialogButton.setEnabled(true);
                 }
+            }
+        });
 
+        viewModel.checkEnd().observe(this, new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean aBoolean) {
+                if(aBoolean){
+                    new CountDownTimer(1000, 500) {
+                        @Override
+                        public void onTick(long millisUntilFinished) {
+
+                        }
+
+                        @Override
+                        public void onFinish() {
+                            moveToResults();
+                        }
+                    }.start();
+                }
             }
         });
 
@@ -142,11 +162,7 @@ public class QuizActivity extends AppCompatActivity {
 
                 @Override
                 public void onFinish() {
-                    if(viewModel.isQuizFinish()){
-                        moveToResults();
-                    }else{
-                        refreshAnswers(answerButton);
-                    }
+                    refreshAnswers(answerButton);
                 }
             }.start();
         }
@@ -209,16 +225,42 @@ public class QuizActivity extends AppCompatActivity {
     }
 
     public void moveToResults(){
+        checkCharactersUnlock();
+
         Intent intent = new Intent(this, ResultsActivity.class);
         intent.putExtra("scores",viewModel.getQuizScores());
+        intent.putExtra("category",viewModel.category);
         startActivity(intent);
         finish();
+    }
+
+    public void checkCharactersUnlock(){
+        if(viewModel.category.equals("anime")){
+            SharedPreferences preferences = QuizActivity.this.getSharedPreferences("characterMode",MODE_PRIVATE);
+            SharedPreferences.Editor editor = preferences.edit();
+            int[] scores = viewModel.getQuizScores();
+            if(scores[0] >= 3 && scores[2] >= 10 && preferences.getInt("lockMode", 0) == 0){
+                editor.putInt("lockMode",1);
+                editor.apply();
+            }
+        }
     }
 
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-
         viewModel.stopRequests();
+        checkCharactersUnlock();
+
+        Intent intent = new Intent(QuizActivity.this,ChoicesActivity.class);
+        intent.putExtra("category",viewModel.category);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        checkCharactersUnlock();
     }
 }

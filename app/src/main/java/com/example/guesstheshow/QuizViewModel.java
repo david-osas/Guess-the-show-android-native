@@ -41,6 +41,7 @@ public class QuizViewModel extends ViewModel {
     private MutableLiveData<Integer> rounds = new MutableLiveData<>();
     private MutableLiveData<Integer> timer = new MutableLiveData<>();
     private MutableLiveData<Bitmap> image = new MutableLiveData<>();
+    private MutableLiveData<Boolean> end = new MutableLiveData<>();
     private int questions = 0, correct = 0, completedRounds = 0;
     private CountDownTimer countDownTimer;
     public int width, height;
@@ -52,6 +53,7 @@ public class QuizViewModel extends ViewModel {
             requestQueue = Volley.newRequestQueue(c);
             fetchingData.setValue(true);
             rounds.setValue(0);
+            end.setValue(false);
         }
     }
 
@@ -71,6 +73,14 @@ public class QuizViewModel extends ViewModel {
         return image;
     }
 
+    public LiveData<Boolean> checkEnd(){
+        return end;
+    }
+
+    public int getMaxDataSize(){
+        return generalDataPairs.size();
+    }
+
     public int[] getQuizScores(){
         return new int[]{completedRounds, questions, correct};
     }
@@ -84,7 +94,10 @@ public class QuizViewModel extends ViewModel {
 
                 @Override
                 public void onFinish() {
-                    timer.setValue(-1);
+                    handleRounds();
+                    if(!isRound()){
+                        timer.setValue(-1);
+                    }
                 }
             };
         countDownTimer.start();
@@ -98,12 +111,21 @@ public class QuizViewModel extends ViewModel {
         return rounds.getValue() > 0;
     }
 
-    public boolean isQuizFinish(){
-        return index == generalDataPairs.size();
-    }
 
     public boolean checkAnswer(String choice){
         boolean val;
+        if(choice.equalsIgnoreCase(answer)){
+            correct++;
+            val = true;
+        }else{
+            val = false;
+        }
+        handleRounds();
+
+        return val;
+    }
+
+    private void handleRounds(){
         if((index)%10 == 0 && index != generalDataPairs.size()){
             if(generalDataPairs.size() - index <= 10){
                 rounds.setValue(2);
@@ -114,15 +136,10 @@ public class QuizViewModel extends ViewModel {
         }else{
             rounds.setValue(0);
         }
-
-        if(choice.equalsIgnoreCase(answer)){
-            correct++;
-            val = true;
-        }else{
-            val = false;
-        }
         questions++;
-        return val;
+        if(index == generalDataPairs.size()){
+            end.setValue(true);
+        }
     }
 
     public ArrayList<String> getCurrentQuizData(){
