@@ -28,8 +28,15 @@
 
     <string name="fetchingDataTitle">Fetching data</string>
     <string name="fetchingDataMessage">Quiz data is being fetched \n
-        -To play the game select an answer to get a score before the time runs out, time period is forty seconds \n
-        -If the correct answer is selected, the answer box turns green and if the wrong answer is selected, the answer box turns red \n
+        -To play the game select an answer to get a score before the time runs out, time period is forty seconds \n \n
+        -If the correct answer is selected, the answer box turns green and if the wrong answer is selected, the answer box turns red \n \n
         -Questions would be grouped in rounds, total number of rounds is usually 10 and each round usually contains ten questions</string>
+
+<!--    Results activity-->
+    <string name="resultsTitle">Congratulations🎉🎉, you have reached the end of all quiz rounds. See your results details below</string>
+    <string name="resultsRounds">Total rounds taken: %d</string>
+    <string name="resultsQuestions">Total questions taken: %d</string>
+    <string name="resultsCorrect">Total correct questions answered</string>
+    <string name="resultsCorrectNumber">%d</string>
 
 </resources>

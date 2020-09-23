@@ -98,10 +98,14 @@ public class QuizViewModel extends ViewModel {
         return rounds.getValue() > 0;
     }
 
+    public boolean isQuizFinish(){
+        return index == generalDataPairs.size();
+    }
+
     public boolean checkAnswer(String choice){
         boolean val;
-        if((index)%10 == 0){
-            if(generalDataPairs.size() - (index) <= 10){
+        if((index)%10 == 0 && index != generalDataPairs.size()){
+            if(generalDataPairs.size() - index <= 10){
                 rounds.setValue(2);
             }else{
                 rounds.setValue(1);

@@ -142,7 +142,11 @@ public class QuizActivity extends AppCompatActivity {
 
                 @Override
                 public void onFinish() {
-                    refreshAnswers(answerButton);
+                    if(viewModel.isQuizFinish()){
+                        moveToResults();
+                    }else{
+                        refreshAnswers(answerButton);
+                    }
                 }
             }.start();
         }
@@ -202,6 +206,13 @@ public class QuizActivity extends AppCompatActivity {
         }
         buttonArray[answer].setText(details.get(0));
 
+    }
+
+    public void moveToResults(){
+        Intent intent = new Intent(this, ResultsActivity.class);
+        intent.putExtra("scores",viewModel.getQuizScores());
+        startActivity(intent);
+        finish();
     }
 
     @Override
