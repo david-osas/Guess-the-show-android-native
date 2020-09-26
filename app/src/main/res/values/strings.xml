@@ -1,6 +1,11 @@
 <resources>
     <string name="app_name">Guess the show</string>
 
+    <!--    User menu-->
+    <string name="login">Login/Signup</string>
+    <string name="logout">Logout</string>
+    <string name="highscores">Leader board</string>
+
     <!--    Main activity-->
     <string name="welcomeText">Welcome to <i>Guess the show</i>, see how well you know the things you love to watch </string>
     <string name="movieHomeText">Play in movie category</string>
@@ -34,11 +39,15 @@
         -If the correct answer is selected, the answer box turns green and if the wrong answer is selected, the answer box turns red \n \n
         -Questions would be grouped in rounds, total number of rounds is usually 10 and each round usually contains ten questions</string>
 
-<!--    Results activity-->
+    <!--    Results activity-->
     <string name="resultsTitle">Congratulations🎉🎉, you have reached the end of all quiz rounds. See your results details below</string>
     <string name="resultsRounds">Total rounds taken: %d</string>
     <string name="resultsQuestions">Total questions taken: %d</string>
     <string name="resultsCorrect">Total correct questions answered</string>
     <string name="resultsCorrectNumber">%d</string>
+
+<!--    Highscores activity-->
+    <string name="highscoresTitle">Showing global leader board</string>
+
 
 </resources>
