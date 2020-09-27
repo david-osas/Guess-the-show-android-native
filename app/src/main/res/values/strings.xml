@@ -46,6 +46,15 @@
     <string name="resultsCorrect">Total correct questions answered</string>
     <string name="resultsCorrectNumber">%d</string>
 
+<!--    Login activity-->
+    <string name="loginEmail">email</string>
+    <string name="loginUsername">username</string>
+    <string name="loginPassword">password</string>
+    <string name="loginButton">login</string>
+    <string name="signupButton">sign up</string>
+    <string name="authenticateButton">authenticate</string>
+    <string name="helperText">Pick between login or sign up operations to start authentication</string>
+
 <!--    Highscores activity-->
     <string name="highscoresTitle">Showing global leader board</string>
 
