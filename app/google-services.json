@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "1077370245463",
+    "firebase_url": "https://guess-the-show-12fcf.firebaseio.com",
+    "project_id": "guess-the-show-12fcf",
+    "storage_bucket": "guess-the-show-12fcf.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1077370245463:android:730f1eb048f3e56946ae12",
+        "android_client_info": {
+          "package_name": "com.example.guesstheshow"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1077370245463-9bpm5ai44uv38eukvt1qt54gicnlkcik.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDOKPTXeE33mDh9sykNTo000ywv-4wjPEk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1077370245463-9bpm5ai44uv38eukvt1qt54gicnlkcik.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
