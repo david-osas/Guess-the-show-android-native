@@ -4,6 +4,7 @@
     <!--    User menu-->
     <string name="login">Login/Signup</string>
     <string name="logout">Logout</string>
+    <string name="logoutMessage">Logged out successfully</string>
     <string name="highscores">Leader board</string>
 
     <!--    Main activity-->
@@ -48,12 +49,11 @@
 
 <!--    Login activity-->
     <string name="loginEmail">email</string>
-    <string name="loginUsername">username</string>
     <string name="loginPassword">password</string>
-    <string name="loginButton">login</string>
-    <string name="signupButton">sign up</string>
-    <string name="authenticateButton">authenticate</string>
-    <string name="helperText">Pick between login or sign up operations to start authentication</string>
+    <string name="emtpyDetails">Kindly put in your email and password details</string>
+    <string name="success">successful authentication</string>
+    <string name="failure">failed authentication</string>
+    <string name="passwordDetail">password must be minimum of 6 characters</string>
 
 <!--    Highscores activity-->
     <string name="highscoresTitle">Showing global leader board</string>
