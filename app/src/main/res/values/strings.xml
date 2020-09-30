@@ -1,12 +1,6 @@
 <resources>
     <string name="app_name">Guess the show</string>
 
-    <!--    User menu-->
-    <string name="login">Login/Signup</string>
-    <string name="logout">Logout</string>
-    <string name="logoutMessage">Logged out successfully</string>
-    <string name="highscores">Leader board</string>
-
     <!--    Main activity-->
     <string name="welcomeText">Welcome to <i>Guess the show</i>, see how well you know the things you love to watch </string>
     <string name="movieHomeText">Play in movie category</string>
@@ -47,17 +41,7 @@
     <string name="resultsCorrect">Total correct questions answered</string>
     <string name="resultsCorrectNumber">%d</string>
     <string name="cloudDBSuccess">Score successfully added to leader board</string>
-
-<!--    Login activity-->
-    <string name="loginEmail">email</string>
-    <string name="loginPassword">password</string>
-    <string name="emtpyDetails">Kindly put in your email and password details</string>
-    <string name="success">successful authentication</string>
-    <string name="failure">failed authentication</string>
-    <string name="passwordDetail">password must be minimum of 6 characters</string>
-
-<!--    Highscores activity-->
-    <string name="highscoresTitle">Showing global leader board</string>
+    <string name="cloudDBFailure">Score not added successfully to leader board</string>
 
 
 </resources>
