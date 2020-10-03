@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -35,6 +36,7 @@ public class QuizActivity extends AppCompatActivity {
         binding = ActivityQuizBinding.inflate(getLayoutInflater());
         View root = binding.getRoot();
         setContentView(root);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         Intent intent = getIntent();
         buttonArray = new Button[]{binding.answer1, binding.answer2, binding.answer3, binding.answer4};
@@ -61,6 +63,9 @@ public class QuizActivity extends AppCompatActivity {
             @Override
             public void onChanged(Bitmap bitmap) {
                 binding.imageView.setImageBitmap(bitmap);
+                for(Button b : buttonArray){
+                    b.setEnabled(true);
+                }
             }
         });
 
@@ -169,12 +174,9 @@ public class QuizActivity extends AppCompatActivity {
     }
 
     public void refreshAnswers(Button button){
-        for(Button b : buttonArray){
-            b.setEnabled(true);
-        }
         viewModel.stopTimer();
         button.setBackgroundColor(getColor(R.color.options));
-        binding.imageView.setImageDrawable(getDrawable(R.drawable.ic_launcher_foreground));
+        binding.imageView.setImageDrawable(getDrawable(R.drawable.ic_loading));
         setQuizDetails();
     }
 

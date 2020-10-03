@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -21,6 +22,7 @@ public class ChoicesActivity extends AppCompatActivity {
         binding = ActivityChoicesBinding.inflate(getLayoutInflater());
         View root = binding.getRoot();
         setContentView(root);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         Intent intent = getIntent();
         category = intent.getStringExtra("category");
