@@ -137,6 +137,7 @@ public class QuizViewModel extends ViewModel {
         }
         questions++;
         if(index == generalDataPairs.size()){
+            completedRounds++;
             end.setValue(true);
         }
     }
