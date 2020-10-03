@@ -3,7 +3,6 @@ package com.example.guesstheshow;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.CountDownTimer;
-import android.util.Log;
 import android.widget.ImageView;
 
 import androidx.lifecycle.LiveData;
@@ -184,7 +183,7 @@ public class QuizViewModel extends ViewModel {
 
     public void startRequest(){
         state = true;
-        String url = "";
+        String url;
 
         if(category.equals("anime")){
             url = buildUrl("anime",tag);

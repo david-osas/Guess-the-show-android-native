@@ -40,8 +40,6 @@
     <string name="resultsQuestions">Total questions taken: %d</string>
     <string name="resultsCorrect">Total correct questions answered</string>
     <string name="resultsCorrectNumber">%d</string>
-    <string name="cloudDBSuccess">Score successfully added to leader board</string>
-    <string name="cloudDBFailure">Score not added successfully to leader board</string>
 
 
 </resources>

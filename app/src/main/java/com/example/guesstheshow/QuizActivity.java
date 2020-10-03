@@ -5,7 +5,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -13,7 +12,6 @@ import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.CountDownTimer;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
@@ -176,7 +174,6 @@ public class QuizActivity extends AppCompatActivity {
     public void refreshAnswers(Button button){
         viewModel.stopTimer();
         button.setBackgroundColor(getColor(R.color.options));
-        binding.imageView.setImageDrawable(getDrawable(R.drawable.ic_loading));
         setQuizDetails();
     }
 
@@ -212,6 +209,7 @@ public class QuizActivity extends AppCompatActivity {
     }
 
     public void setQuizDetails(){
+        binding.imageView.setImageDrawable(getDrawable(R.drawable.ic_loading));
         int answer = (int) Math.floor(Math.random() * 4);
         ArrayList<String> details = viewModel.getCurrentQuizData();
         List<String> subDetails = details.subList(1,4);

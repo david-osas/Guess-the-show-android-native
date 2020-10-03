@@ -3,7 +3,6 @@
     <color name="colorPrimary">#3282b8</color>
     <color name="colorPrimaryDark">#0f4c75</color>
     <color name="colorAccent">#fc5185</color>
-    <color name="grey">#d3d3d3</color>
 
 <!--    Quiz activity-->
     <color name="options">#6fbbd3</color>

@@ -1,17 +1,13 @@
 package com.example.guesstheshow;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Toast;
 
 import com.example.guesstheshow.databinding.ActivityResultsBinding;
-
-import java.util.HashMap;
 
 public class ResultsActivity extends AppCompatActivity {
     private ActivityResultsBinding binding;
